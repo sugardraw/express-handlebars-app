@@ -12,7 +12,13 @@
                     <p class="card-text">
                         <h4 class="text-muted">{{this.price}}€</h4>
                     </p>
+                    <a href={{this.editUrl}} class="btn btn-primary btn-sm my-3">Edit this product</a>
+                    
                     <a href={{this.url}} class="btn btn-primary btn-sm my-3">delete this product</a>
+
+                    <a href="http://localhost:3000/" class="btn btn-primary btn-sm my-3">&#8592;&#32;Add more products</a>
+
+
                 </div>
             </div>
             {{/each}}

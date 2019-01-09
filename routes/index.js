@@ -1,8 +1,21 @@
 const router = require("express").Router();
 const fs = require("fs");
+
+/**
+ * Get the product list
+ * 
+ */
+
+
 const productsList = JSON.parse(
   fs.readFileSync("./database/database.json", "utf8")
 );
+
+
+/**
+ * routes
+ */
+
 
 router.get("/", (req, res) => {
   res.render("index.hbs", {
@@ -36,9 +49,15 @@ router.get("/about", (req, res) => {
   res.render("about.hbs");
 });
 
+/**
+ * Add a product
+ * 
+ */
+
 router.post("/products/new-product", (req, res) => {
   if (req.body.product != "") {
     req.body.url = `http://localhost:3000/products/delete/?id=${Date.now()}`;
+    req.body.editUrl = `http://localhost:3000/products/edit/?id=${Date.now()}`;
     productsList.push(req.body);
     fs.writeFile(
       "./database/database.json",
@@ -55,6 +74,13 @@ router.post("/products/new-product", (req, res) => {
     res.render("error.hbs");
   }
 });
+
+/**
+ * 
+ * Delete a product
+ */
+
+
 router.get("/products/delete/", (req, res) => {
   let selected = {};
   for (let i in productsList) {
@@ -80,6 +106,34 @@ router.get("/products/delete/", (req, res) => {
   res.render("deleted.hbs", {
     product: selected.product
   });
+});
+
+/**
+ * Edit Product
+ */
+router.get("/products/edit/", (req, res) => {
+  // let selected = {};
+  for (let i in productsList) {
+    if (
+      productsList[i].url ===
+      `http://localhost:3000/products/delete/?id=${req.query.id}`
+    ) {
+      // selected = productsList[i];
+      // productsList.splice(productsList.indexOf(productsList[i]), 1);
+    }
+  }
+
+  // fs.writeFile(
+  //   "./database/database.json",
+  //   JSON.stringify(productsList),
+  //   err => {
+  //     if (err) {
+  //       console.log(err);
+  //     }
+  //     console.log("product deleted");
+  //   }
+  // );
+  res.send('edit')
 });
 
 

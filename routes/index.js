@@ -3,19 +3,16 @@ const fs = require("fs");
 
 /**
  * Get the product list
- * 
+ *
  */
-
 
 const productsList = JSON.parse(
   fs.readFileSync("./database/database.json", "utf8")
 );
 
-
 /**
  * routes
  */
-
 
 router.get("/", (req, res) => {
   res.render("index.hbs", {
@@ -25,13 +22,25 @@ router.get("/", (req, res) => {
 });
 
 router.get("/products", (req, res) => {
+
+
+  /**
+   * we use the spread operator to
+   */
   let products = [];
   for (let i in productsList) {
-    products.push(productsList[i]);
+    products.push({
+      ...productsList[i],
+      deleteUrl: "/products/delete?id=" + productsList[i].id,
+      editUrl: "/products/edit?id=" + productsList[i].id
+    });
   }
+
+  console.log(products)
+
   res.render("products.hbs", {
     products: products,
-    url: "http://localhost:3000/products/",
+    url: "/products/",
     helpers: {
       concat: function() {
         var result = "";
@@ -51,14 +60,19 @@ router.get("/about", (req, res) => {
 
 /**
  * Add a product
- * 
+ *
  */
 
 router.post("/products/new-product", (req, res) => {
   if (req.body.product != "") {
-    req.body.url = `http://localhost:3000/products/delete/?id=${Date.now()}`;
-    req.body.editUrl = `http://localhost:3000/products/edit/?id=${Date.now()}`;
-    productsList.push(req.body);
+    const newProduct = {
+      product: req.body.product,
+      description: req.body.description,
+      price: req.body.price,
+      id: Date.now()
+    };
+
+    productsList.push(newProduct);
     fs.writeFile(
       "./database/database.json",
       JSON.stringify(productsList),
@@ -76,18 +90,14 @@ router.post("/products/new-product", (req, res) => {
 });
 
 /**
- * 
+ *
  * Delete a product
  */
-
 
 router.get("/products/delete/", (req, res) => {
   let selected = {};
   for (let i in productsList) {
-    if (
-      productsList[i].url ===
-      `http://localhost:3000/products/delete/?id=${req.query.id}`
-    ) {
+    if (productsList[i].id == req.query.id) {
       selected = productsList[i];
       productsList.splice(productsList.indexOf(productsList[i]), 1);
     }
@@ -112,29 +122,52 @@ router.get("/products/delete/", (req, res) => {
  * Edit Product
  */
 router.get("/products/edit/", (req, res) => {
-  // let selected = {};
+  let selected = {};
   for (let i in productsList) {
-    if (
-      productsList[i].url ===
-      `http://localhost:3000/products/delete/?id=${req.query.id}`
-    ) {
-      // selected = productsList[i];
-      // productsList.splice(productsList.indexOf(productsList[i]), 1);
+    if (productsList[i].id == req.query.id) {
+      selected = productsList[i];
     }
   }
 
-  // fs.writeFile(
-  //   "./database/database.json",
-  //   JSON.stringify(productsList),
-  //   err => {
-  //     if (err) {
-  //       console.log(err);
-  //     }
-  //     console.log("product deleted");
-  //   }
-  // );
-  res.send('edit')
+  res.render("edit.hbs", {
+    selected: selected
+  });
 });
 
+/**
+ * post edited product
+ *
+ */
+
+router.post("/products/edited/", (req, res) => {
+  if (req.body.product != "") {
+    for (let i in productsList) {
+      if (productsList[i].id == req.body.id) {
+        const edited = {
+          product: req.body.product,
+          description: req.body.description,
+          price: req.body.price,
+          id: req.body.id
+        };
+
+        productsList.splice(productsList.indexOf(productsList[i]), 1, edited);
+      }
+    }
+
+    fs.writeFile(
+      "./database/database.json",
+      JSON.stringify(productsList),
+      err => {
+        if (err) {
+          console.log(err);
+        }
+        console.log("product edited");
+      }
+    );
+    res.render("edited.hbs");
+  } else {
+    res.render("error.hbs");
+  }
+});
 
 module.exports = router;

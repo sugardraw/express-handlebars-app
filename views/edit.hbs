@@ -1,0 +1,27 @@
+<div class="card w-75 mx-auto p-3">
+    <div class="card-header">
+        <h3 class="p-2">Edit your product</h3>
+    </div>
+
+
+
+    <div class="card-body">
+        <form action="/products/edited" method="POST">
+            <div class="form-group">
+                <input type="text" name="product"  class="form-control" placeholder={{selected.product}}>
+            </div>
+            <div class="form-group">
+                <textarea name="description" class="form-control" placeholder={{selected.description}} ></textarea>
+            </div>
+            <div class="form-group">
+                <input name="price" class="form-control" type="number" placeholder={{selected.price}} >
+
+            </div>
+            <input type="hidden" name="id" id="hiddenId" value={{selected.id}}>
+            <div class="form-group">
+                <button class="btn btn-primary btn-block" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
